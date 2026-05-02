@@ -1,12 +1,21 @@
 {
   "info": {
     "name": "Splitwise MVP",
-    "description": "API collection for the Splitwise MVP. Auth endpoints return a JWT — copy the token and set it as Bearer in the Authorization header for all protected routes.",
+    "_postman_id": "splitwise-mvp-collection",
+    "description": "Complete API collection for the Splitwise MVP backend",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
-    { "key": "token", "value": "", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -17,10 +26,10 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "url": { "raw": "{{baseUrl}}/register", "host": ["{{baseUrl}}"], "path": ["register"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\",\n  \"default_currency\": \"USD\"\n}"
+              "raw": "{\n  \"name\": \"Tarun Tailor\",\n  \"email\": \"tarun@example.com\",\n  \"password\": \"password123\",\n  \"default_currency\": \"USD\"\n}"
             }
           }
         },
@@ -30,7 +39,10 @@
             {
               "listen": "test",
               "script": {
-                "exec": ["const res = pm.response.json();", "if (res.token) pm.collectionVariables.set('token', res.token);"],
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) { pm.collectionVariables.set('token', res.token); }"
+                ],
                 "type": "text/javascript"
               }
             }
@@ -38,22 +50,19 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"tarun@example.com\",\n  \"password\": \"password123\"\n}"
             }
           }
         },
         {
           "name": "Logout",
           "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/logout", "host": ["{{baseUrl}}"], "path": ["logout"] }
           }
         }
       ]
@@ -69,8 +78,15 @@
             "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"bob@example.com\",\n  \"password\": \"password123\",\n  \"default_currency\": \"USD\"\n}"
+              "raw": "{\n  \"name\": \"Alice Smith\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\",\n  \"default_currency\": \"INR\"\n}"
             }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
           }
         },
         {
@@ -92,7 +108,22 @@
             "url": { "raw": "{{baseUrl}}/users/1", "host": ["{{baseUrl}}"], "path": ["users", "1"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"default_currency\": \"EUR\"\n}"
+              "raw": "{\n  \"name\": \"Tarun Updated\",\n  \"default_currency\": \"EUR\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/users/1", "host": ["{{baseUrl}}"], "path": ["users", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"password123\",\n  \"password\": \"newpassword456\",\n  \"confirmPassword\": \"newpassword456\"\n}"
             }
           }
         },
@@ -103,6 +134,21 @@
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": { "raw": "{{baseUrl}}/users/1", "host": ["{{baseUrl}}"], "path": ["users", "1"] }
           }
+        },
+        {
+          "name": "Add Address to User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/users/address", "host": ["{{baseUrl}}"], "path": ["users", "address"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": {\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"neighborhood\": \"Bandra\",\n    \"country\": \"India\"\n  }\n}"
+            }
+          }
         }
       ]
     },
@@ -110,7 +156,7 @@
       "name": "Expenses",
       "item": [
         {
-          "name": "Create Expense (3-way split)",
+          "name": "Create Expense (Equal Split)",
           "request": {
             "method": "POST",
             "header": [
@@ -120,12 +166,12 @@
             "url": { "raw": "{{baseUrl}}/expenses", "host": ["{{baseUrl}}"], "path": ["expenses"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Hotel\",\n  \"amount\": 120,\n  \"currency\": \"USD\",\n  \"created_by\": 1,\n  \"date\": \"2024-06-10\",\n  \"participant_ids\": [1, 2, 3]\n}"
+              "raw": "{\n  \"name\": \"Dinner at restaurant\",\n  \"amount\": 900,\n  \"currency\": \"INR\",\n  \"date\": \"2025-05-01\",\n  \"participants\": [\n    { \"user_id\": 1 },\n    { \"user_id\": 2 },\n    { \"user_id\": 3 }\n  ]\n}"
             }
           }
         },
         {
-          "name": "Create Expense (2-way split)",
+          "name": "Create Expense (Custom Split)",
           "request": {
             "method": "POST",
             "header": [
@@ -135,7 +181,7 @@
             "url": { "raw": "{{baseUrl}}/expenses", "host": ["{{baseUrl}}"], "path": ["expenses"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Taxi\",\n  \"amount\": 40,\n  \"currency\": \"USD\",\n  \"created_by\": 2,\n  \"date\": \"2024-06-11\",\n  \"participant_ids\": [2, 3]\n}"
+              "raw": "{\n  \"name\": \"Hotel booking\",\n  \"amount\": 3000,\n  \"currency\": \"INR\",\n  \"date\": \"2025-05-02\",\n  \"participants\": [\n    { \"user_id\": 1, \"share_amount\": 1500 },\n    { \"user_id\": 2, \"share_amount\": 1000 },\n    { \"user_id\": 3, \"share_amount\": 500 }\n  ]\n}"
             }
           }
         },
@@ -158,7 +204,7 @@
             "url": { "raw": "{{baseUrl}}/expenses/1", "host": ["{{baseUrl}}"], "path": ["expenses", "1"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Fancy Dinner\",\n  \"amount\": 150\n}"
+              "raw": "{\n  \"name\": \"Dinner (updated)\",\n  \"amount\": 1200,\n  \"currency\": \"INR\"\n}"
             }
           }
         },
@@ -181,6 +227,23 @@
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": { "raw": "{{baseUrl}}/balances", "host": ["{{baseUrl}}"], "path": ["balances"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Address",
+      "item": [
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/address", "host": ["{{baseUrl}}"], "path": ["address"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city\": \"Delhi\",\n  \"state\": \"Delhi\",\n  \"neighborhood\": \"Connaught Place\",\n  \"country\": \"India\"\n}"
+            }
           }
         }
       ]
